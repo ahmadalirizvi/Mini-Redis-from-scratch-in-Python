@@ -108,7 +108,7 @@ mini-redis/
 │   ├── test_storage.py
 │   ├── test_expiry.py
 │   ├── test_commands.py
-│   └── test_server.py
+│   └── test_main.py
 │
 ├── data/
 │   └── database.json
@@ -727,7 +727,7 @@ tests/
 ├── test_expiry.py
 ├── test_commands.py
 ├── test_persistence.py
-└── test_server.py
+└── test_main.py
 ```
 
 Test cases will include:
