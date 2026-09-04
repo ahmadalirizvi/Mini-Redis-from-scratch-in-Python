@@ -128,3 +128,8 @@ store.set("session", "abc123", ttl=10)
 print(store.get_value("session"))
 
 print(store.ttl("session"))
+
+print("In memory:", store.data, store.expiry)
+
+with open(store.filepath) as f:
+    print("On disk:", f.read())
