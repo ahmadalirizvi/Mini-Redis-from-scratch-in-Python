@@ -1,13 +1,16 @@
 # Mini Redis from scratch in Python
 
 import time
-
+import json
+import os
 
 class KeyValueStore:
 
-    def __init__(self):
+    def __init__(self, filepath="data/database.json"):
+        self.filepath = filepath
         self.data = {}
         self.expiry = {}
+        self.load()
 
     # SET key value [EX seconds]
     def set(self, key, value, ttl=None):
@@ -76,6 +79,43 @@ class KeyValueStore:
             return -2
 
         return int(remaining)
+    
+    # Save method
+    def save(self):
+        os.makedirs(os.path.dirname(self.filepath), exist_ok=True)
+        with open(self.filepath, "w") as f:
+            json.dump({"data": self.data, "expiry": self.expiry}, f)
+    
+    # Load method   
+    def load(self):
+        if not os.path.exists(self.filepath):
+            return
+
+        if os.path.getsize(self.filepath) == 0:
+            return
+
+        try:
+            with open(self.filepath, "r") as f:
+                content = json.load(f)
+        except json.JSONDecodeError:
+            # Corrupt or partially-written file — start fresh
+            return
+
+        self.data = content.get("data", {})
+        self.expiry = content.get("expiry", {})
+    
+    # Call save() after every mutation
+    
+    def set(self, key, value, ttl=None):
+        self.data[key] = value
+        if ttl is not None:
+            self.expiry[key] = time.time() + ttl
+        else:
+            self.expiry.pop(key, None)
+        self.save()
+        return "OK"
+        
+    
 
 
 store = KeyValueStore()
