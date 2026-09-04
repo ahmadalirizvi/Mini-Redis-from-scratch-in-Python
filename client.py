@@ -8,9 +8,12 @@ def main():
         s.connect((HOST, PORT))
 
         commands = [
-            "SET name Ahmad",
+            "SET name Ali",
             "GET name",
+            "SET session U1 EX 5",
+            "TTL session",
             "DELETE name",
+            "GET name",
         ]
 
         for cmd in commands:
