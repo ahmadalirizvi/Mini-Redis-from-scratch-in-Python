@@ -25,19 +25,13 @@ class KeyValueStore:
         return "OK"
 
     def get_value(self, key):
-
-        # Check if key has an expiry
         if key in self.expiry:
-
-            # Has the key expired?
             if time.time() >= self.expiry[key]:
-
-                # Delete expired key
                 del self.data[key]
                 del self.expiry[key]
-
+                self.save()          # <-- add this
                 return None
-
+    
         return self.data.get(key)
 
     # DELETE key
@@ -61,21 +55,18 @@ class KeyValueStore:
 
     # TTL key
     def ttl(self, key):
-
-        # Key doesn't exist
         if key not in self.data:
             return -2
 
-        # Key exists but has no expiry
         if key not in self.expiry:
             return -1
 
         remaining = self.expiry[key] - time.time()
 
-        # Key has expired
         if remaining <= 0:
             del self.data[key]
             del self.expiry[key]
+            self.save()               # <-- add this
             return -2
 
         return int(remaining)
