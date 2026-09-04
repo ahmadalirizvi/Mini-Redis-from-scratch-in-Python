@@ -97,7 +97,7 @@ The project structure will evolve as new features are added.
 ```text
 mini-redis/
 │
-├── main.py
+├── server.py
 ├── client.py
 ├── storage.py
 ├── parser.py
@@ -108,7 +108,7 @@ mini-redis/
 │   ├── test_storage.py
 │   ├── test_expiry.py
 │   ├── test_commands.py
-│   └── test_main.py
+│   └── test_server.py
 │
 ├── data/
 │   └── database.json
@@ -123,7 +123,7 @@ During the early phases, the project may contain only:
 ```text
 mini-redis/
 │
-├── main.py
+├── server.py
 ├── README.md
 └── .venv/
 ```
@@ -339,7 +339,7 @@ KeyValueStore
 Start the server:
 
 ```bash
-python main.py
+python server.py
 ```
 
 Start the client:
@@ -727,7 +727,7 @@ tests/
 ├── test_expiry.py
 ├── test_commands.py
 ├── test_persistence.py
-└── test_main.py
+└── test_server.py
 ```
 
 Test cases will include:
@@ -754,7 +754,7 @@ Invalid commands are handled correctly
 
 ### Objective
 
-Improve the project structure and make the code easier to understand and maintain.
+Improve the project structure and make the code easier to understand and servertain.
 
 Tasks:
 
@@ -827,7 +827,7 @@ source .venv/bin/activate
 During the early phases:
 
 ```bash
-python main.py
+python server.py
 ```
 
 # Example Commands
