@@ -1,4 +1,5 @@
 from storage import KeyValueStore
+from parser import handle_command
 import socket
 
 HOST = "127.0.0.1"
@@ -29,7 +30,8 @@ def main():
                     message = data.decode().strip()
                     print("Received:", message)
 
-                    conn.sendall(b"OK\n")
+                    response = handle_command(store, message)
+                    conn.sendall((str(response) + "\n").encode())
 
 if __name__ == "__main__":
     main()
