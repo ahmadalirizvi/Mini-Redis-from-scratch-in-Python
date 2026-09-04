@@ -123,7 +123,7 @@ During the early phases, the project may contain only:
 ```text
 mini-redis/
 │
-├── server.py
+├── main.py
 ├── README.md
 └── .venv/
 ```
@@ -339,7 +339,7 @@ KeyValueStore
 Start the server:
 
 ```bash
-python server.py
+python main.py
 ```
 
 Start the client:
@@ -827,7 +827,7 @@ source .venv/bin/activate
 During the early phases:
 
 ```bash
-python server.py
+python main.py
 ```
 
 # Example Commands
