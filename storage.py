@@ -130,6 +130,40 @@ class KeyValueStore:
             return "ERR wrong type for key"
 
         return value
+    
+        # LPOP key
+    def lpop(self, key):
+        value = self.data.get(key)
+
+        if value is None:
+            return None
+
+        if not isinstance(value, list):
+            return "ERR wrong type for key"
+
+        if not value:
+            return None
+
+        popped = value.pop(0)
+
+        # Clean up empty lists so they don't linger as stale keys
+        if not value:
+            del self.data[key]
+
+        self.save()
+        return popped
+
+    # LLEN key
+    def llen(self, key):
+        value = self.data.get(key)
+
+        if value is None:
+            return 0
+
+        if not isinstance(value, list):
+            return "ERR wrong type for key"
+
+        return len(value)
 
 
 # store = KeyValueStore()

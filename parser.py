@@ -59,6 +59,28 @@ def handle_command(store, message):
         result = store.lrange(parts[1])
         return " ".join(result) if isinstance(result, list) else result
     
+    elif cmd == "LPUSH":
+        if len(parts) != 3:
+            return "ERR usage: LPUSH key value"
+        return store.lpush(parts[1], parts[2])
+
+    elif cmd == "LRANGE":
+        if len(parts) != 2:
+            return "ERR usage: LRANGE key"
+        result = store.lrange(parts[1])
+        return " ".join(result) if isinstance(result, list) else result
+
+    elif cmd == "LPOP":
+        if len(parts) != 2:
+            return "ERR usage: LPOP key"
+        result = store.lpop(parts[1])
+        return result if result is not None else "(nil)"
+
+    elif cmd == "LLEN":
+        if len(parts) != 2:
+            return "ERR usage: LLEN key"
+        return str(store.llen(parts[1]))
+    
     # TTL key
     elif cmd == "TTL":
         if len(parts) != 2:
