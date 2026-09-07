@@ -42,6 +42,7 @@ class KeyValueStore:
 
             # Also remove expiry information
             self.expiry.pop(key, None)
+            self.save()
 
             return "OK"
 
@@ -109,18 +110,18 @@ class KeyValueStore:
     
 
 
-store = KeyValueStore()
+# store = KeyValueStore()
 
-# store.set("name", "Ahmad")
-# print(store.get_value("name"))
+# # store.set("name", "Ahmad")
+# # print(store.get_value("name"))
 
 
-store.set("session", "abc123", ttl=10)
-print(store.get_value("session"))
+# store.set("session", "abc123", ttl=10)
+# print(store.get_value("session"))
 
-print(store.ttl("session"))
+# print(store.ttl("session"))
 
-print("In memory:", store.data, store.expiry)
+# print("In memory:", store.data, store.expiry)
 
-with open(store.filepath) as f:
-    print("On disk:", f.read())
+# with open(store.filepath) as f:
+#     print("On disk:", f.read())
