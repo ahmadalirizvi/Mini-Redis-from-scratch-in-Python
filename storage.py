@@ -107,7 +107,29 @@ class KeyValueStore:
         self.save()
         return "OK"
         
-    
+    # LPUSH key value
+    def lpush(self, key, value):
+        if key not in self.data:
+            self.data[key] = []
+
+        if not isinstance(self.data[key], list):
+            return "ERR wrong type for key"
+
+        self.data[key].insert(0, value)
+        self.save()
+        return "OK"
+
+    # LRANGE key (returns the whole list for now)
+    def lrange(self, key):
+        value = self.data.get(key)
+
+        if value is None:
+            return []
+
+        if not isinstance(value, list):
+            return "ERR wrong type for key"
+
+        return value
 
 
 # store = KeyValueStore()
