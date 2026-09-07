@@ -9,14 +9,14 @@ def main():
         s.connect((HOST, PORT))
 
         commands = [
-            "SET name Ahmad",
-            "GET name",
-            "SET session fresh EX 30",
-            "TTL session",
-            "GET session",
-            "EXISTS session",
-            "DELETE name",
-            "GET name",
+            "LPUSH users Ahmad",
+            "LPUSH users Ali",
+            "LPUSH users Sara",
+            "LRANGE users",
+            "LLEN users",
+            "LPOP users",
+            "LRANGE users",
+            "LLEN users",
         ]
 
         for cmd in commands:
