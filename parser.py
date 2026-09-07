@@ -47,12 +47,24 @@ def handle_command(store, message):
 
         return str(store.exists(parts[1]))
 
+    
+    elif cmd == "LPUSH":
+        if len(parts) != 3:
+            return "ERR usage: LPUSH key value"
+        return store.lpush(parts[1], parts[2])
+
+    elif cmd == "LRANGE":
+        if len(parts) != 2:
+            return "ERR usage: LRANGE key"
+        result = store.lrange(parts[1])
+        return " ".join(result) if isinstance(result, list) else result
+    
     # TTL key
     elif cmd == "TTL":
         if len(parts) != 2:
             return "ERR usage: TTL key"
-
+    
         return str(store.ttl(parts[1]))
-
+    
     else:
         return f"ERR unknown command '{cmd}'"
