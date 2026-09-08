@@ -199,6 +199,49 @@ class KeyValueStore:
             return "ERR wrong type for key"
 
         return value
+    
+        # ZADD key score member
+    def zadd(self, key, score, member):
+        if key not in self.data:
+            self.data[key] = {}
+
+        if not isinstance(self.data[key], dict):
+            return "ERR wrong type for key"
+
+        try:
+            score = float(score)
+        except ValueError:
+            return "ERR score must be a number"
+
+        self.data[key][member] = score
+        self.save()
+        return "OK"
+
+    # ZRANGE key (returns members sorted by score, ascending)
+    def zrange(self, key):
+        value = self.data.get(key)
+
+        if value is None:
+            return []
+
+        if not isinstance(value, dict):
+            return "ERR wrong type for key"
+
+        # Sort members by their score
+        sorted_members = sorted(value.items(), key=lambda item: item[1])
+        return [member for member, score in sorted_members]
+
+    # ZSCORE key member
+    def zscore(self, key, member):
+        value = self.data.get(key)
+
+        if value is None:
+            return None
+
+        if not isinstance(value, dict):
+            return "ERR wrong type for key"
+
+        return value.get(member)
 
 
 # store = KeyValueStore()

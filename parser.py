@@ -106,6 +106,23 @@ def handle_command(store, message):
         if not isinstance(result, dict):
             return result
         return " ".join(f"{k} {v}" for k, v in result.items())
+    
+    elif cmd == "ZADD":
+        if len(parts) != 4:
+            return "ERR usage: ZADD key score member"
+        return store.zadd(parts[1], parts[2], parts[3])
+
+    elif cmd == "ZRANGE":
+        if len(parts) != 2:
+            return "ERR usage: ZRANGE key"
+        result = store.zrange(parts[1])
+        return " ".join(result) if isinstance(result, list) else result
+
+    elif cmd == "ZSCORE":
+        if len(parts) != 3:
+            return "ERR usage: ZSCORE key member"
+        result = store.zscore(parts[1], parts[2])
+        return str(result) if result is not None else "(nil)"
         
     else:
         return f"ERR unknown command '{cmd}'"
