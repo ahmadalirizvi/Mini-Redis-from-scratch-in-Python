@@ -24,6 +24,25 @@ This project aims to explore and implement:
 
 The project is being developed phase by phase, with each phase introducing a new backend or systems concept.
 
+## Status Table
+
+| Phase | Feature               | Status      |
+| ----- | --------------------- | ----------- |
+| 1     | Basic Key Value Store | Completed   |
+| 2     | TTL and Expiration    | Completed   |
+| 3     | Persistence           | Completed   |
+| 4     | TCP Networking        | Completed   |
+| 5     | Command Parser        | Completed   |
+| 6     | Multiple Clients      | Completed   |
+| 7     | Data Structures       | Completed   |
+| 8     | Rate Limiting         | Completed   |
+| 9     | Job Queue             | Completed   |
+| 10    | Pub/Sub               | Completed   |
+| 11    | Authentication        | Planned     |
+| 12    | Performance           | Planned     |
+| 13    | Automated Testing     | Planned     |
+| 14    | Documentation         | Planned     |
+
 ## Architecture
 
 The project starts as a simple Python class using a dictionary and gradually evolves into a networked Redis like server.
