@@ -258,35 +258,47 @@ class KeyValueStore:
         return current
     
     # RATE_LIMIT key max_requests window_seconds
-def rate_limit(self, key, max_requests, window_seconds):
-    try:
-        max_requests = int(max_requests)
-        window_seconds = int(window_seconds)
-    except ValueError:
-        return "ERR max_requests and window_seconds must be integers"
+    def rate_limit(self, key, max_requests, window_seconds):
+        try:
+            max_requests = int(max_requests)
+            window_seconds = int(window_seconds)
+        except ValueError:
+            return "ERR max_requests and window_seconds must be integers"
 
-    # First request in a fresh window — set counter + TTL together
-    if key not in self.data:
-        self.data[key] = 1
-        self.expiry[key] = time.time() + window_seconds
+        # First request in a fresh window — set counter + TTL together
+        if key not in self.data:
+            self.data[key] = 1
+            self.expiry[key] = time.time() + window_seconds
+            self.save()
+            return "ALLOWED"
+
+        # Check if window has expired (reuse existing expiry logic)
+        if key in self.expiry and time.time() >= self.expiry[key]:
+            self.data[key] = 1
+            self.expiry[key] = time.time() + window_seconds
+            self.save()
+            return "ALLOWED"
+
+        # Still within window — increment and check
+        self.data[key] += 1
         self.save()
+
+        if self.data[key] > max_requests:
+            return "REJECTED"
+
         return "ALLOWED"
 
-    # Check if window has expired (reuse existing expiry logic)
-    if key in self.expiry and time.time() >= self.expiry[key]:
-        self.data[key] = 1
-        self.expiry[key] = time.time() + window_seconds
+        # RPUSH key value — push to the tail (for FIFO queue behavior)
+    def rpush(self, key, value):
+        if key not in self.data:
+            self.data[key] = []
+
+        if not isinstance(self.data[key], list):
+            return "ERR wrong type for key"
+
+        self.data[key].append(value)
         self.save()
-        return "ALLOWED"
-
-    # Still within window — increment and check
-    self.data[key] += 1
-    self.save()
-
-    if self.data[key] > max_requests:
-        return "REJECTED"
-
-    return "ALLOWED"
+        return "OK"
 
 # store = KeyValueStore()
 

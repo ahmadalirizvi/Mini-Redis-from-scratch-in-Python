@@ -128,6 +128,11 @@ def handle_command(store, message):
         if len(parts) != 4:
             return "ERR usage: RATE_LIMIT key max_requests window_seconds"
         return store.rate_limit(parts[1], parts[2], parts[3])
+    
+    elif cmd == "RPUSH":
+        if len(parts) != 3:
+            return "ERR usage: RPUSH key value"
+        return store.rpush(parts[1], parts[2])
         
     else:
         return f"ERR unknown command '{cmd}'"
