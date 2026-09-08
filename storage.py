@@ -242,7 +242,51 @@ class KeyValueStore:
             return "ERR wrong type for key"
 
         return value.get(member)
+    
+        # INCR key — increments a counter, creating it at 0 first if needed
+    def incr(self, key):
+        current = self.data.get(key, 0)
 
+        if not isinstance(current, (int, float)):
+            return "ERR value is not an integer"
+
+        current += 1
+        self.data[key] = current
+
+        # Preserve existing TTL if the key already had one — incr shouldn't reset it
+        self.save()
+        return current
+    
+    # RATE_LIMIT key max_requests window_seconds
+def rate_limit(self, key, max_requests, window_seconds):
+    try:
+        max_requests = int(max_requests)
+        window_seconds = int(window_seconds)
+    except ValueError:
+        return "ERR max_requests and window_seconds must be integers"
+
+    # First request in a fresh window — set counter + TTL together
+    if key not in self.data:
+        self.data[key] = 1
+        self.expiry[key] = time.time() + window_seconds
+        self.save()
+        return "ALLOWED"
+
+    # Check if window has expired (reuse existing expiry logic)
+    if key in self.expiry and time.time() >= self.expiry[key]:
+        self.data[key] = 1
+        self.expiry[key] = time.time() + window_seconds
+        self.save()
+        return "ALLOWED"
+
+    # Still within window — increment and check
+    self.data[key] += 1
+    self.save()
+
+    if self.data[key] > max_requests:
+        return "REJECTED"
+
+    return "ALLOWED"
 
 # store = KeyValueStore()
 
