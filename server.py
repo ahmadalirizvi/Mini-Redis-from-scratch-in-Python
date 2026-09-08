@@ -2,6 +2,8 @@ from storage import KeyValueStore
 from parser import handle_command
 import socket
 import threading
+from config import AUTH_PASSWORD
+
 
 HOST = "127.0.0.1"
 PORT = 6380
@@ -12,6 +14,7 @@ subscribers_lock = threading.Lock()
 def handle_client(conn, addr, store, lock):
     print(f"Connected by {addr}")
     subscribed_channels = []
+    authenticated = False   # <-- new: per-connection auth state
 
     with conn:
         while True:
@@ -19,7 +22,6 @@ def handle_client(conn, addr, store, lock):
 
             if not data:
                 print(f"Disconnected: {addr}")
-                # Clean up subscriptions on disconnect
                 with subscribers_lock:
                     for channel in subscribed_channels:
                         if conn in subscribers.get(channel, []):
@@ -29,6 +31,20 @@ def handle_client(conn, addr, store, lock):
             message = data.decode().strip()
             print(f"Received from {addr}:", message)
             parts = message.split()
+
+            # AUTH is always allowed, even before authentication
+            if parts and parts[0].upper() == "AUTH" and len(parts) == 2:
+                if parts[1] == AUTH_PASSWORD:
+                    authenticated = True
+                    conn.sendall(b"OK\n")
+                else:
+                    conn.sendall(b"ERR invalid password\n")
+                continue
+
+            # Block everything else until authenticated
+            if not authenticated:
+                conn.sendall(b"ERR NOAUTH Authentication required\n")
+                continue
 
             if parts and parts[0].upper() == "SUBSCRIBE" and len(parts) == 2:
                 channel = parts[1]

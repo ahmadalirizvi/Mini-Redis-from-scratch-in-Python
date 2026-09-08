@@ -8,13 +8,10 @@ def main():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((HOST, PORT))
 
-        # commands = [
-        #     "RPUSH jobs send_email",
-        #     "RPUSH jobs resize_image",
-        #     "RPUSH jobs generate_report",
-        # ]
         commands = [
-            "PUBLISH notifications New message from Ahmad",
+            "AUTH changeme123",
+            "SET name Ahmad",
+            "GET name",
         ]
 
         for cmd in commands:
