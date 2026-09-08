@@ -9,14 +9,11 @@ def main():
         s.connect((HOST, PORT))
 
         commands = [
-            "LPUSH users Ahmad",
-            "LPUSH users Ali",
-            "LPUSH users Sara",
-            "LRANGE users",
-            "LLEN users",
-            "LPOP users",
-            "LRANGE users",
-            "LLEN users",
+            "ZADD leaderboard 100 Ahmad",
+            "ZADD leaderboard 250 Ali",
+            "ZADD leaderboard 175 Sara",
+            "ZRANGE leaderboard",
+            "ZSCORE leaderboard Ali",
         ]
 
         for cmd in commands:
