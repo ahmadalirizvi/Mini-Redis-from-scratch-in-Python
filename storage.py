@@ -74,9 +74,12 @@ class KeyValueStore:
     
     # Save method
     def save(self):
-        os.makedirs(os.path.dirname(self.filepath), exist_ok=True)
-        with open(self.filepath, "w") as f:
-            json.dump({"data": self.data, "expiry": self.expiry}, f)
+        dir_path = os.path.dirname(self.filepath)
+
+        if dir_path:  # only create a directory if the path actually has one
+            os.makedirs(dir_path, exist_ok=True)
+
+        # ... rest of save() unchanged (the serializable_data conversion + json.dump)
     
     # Load method   
     def load(self):

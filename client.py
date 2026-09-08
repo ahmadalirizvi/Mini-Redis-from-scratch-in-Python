@@ -8,12 +8,13 @@ def main():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((HOST, PORT))
 
+        # commands = [
+        #     "RPUSH jobs send_email",
+        #     "RPUSH jobs resize_image",
+        #     "RPUSH jobs generate_report",
+        # ]
         commands = [
-            "ZADD leaderboard 100 Ahmad",
-            "ZADD leaderboard 250 Ali",
-            "ZADD leaderboard 175 Sara",
-            "ZRANGE leaderboard",
-            "ZSCORE leaderboard Ali",
+            "PUBLISH notifications New message from Ahmad",
         ]
 
         for cmd in commands:
