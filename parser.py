@@ -123,6 +123,12 @@ def handle_command(store, message):
             return "ERR usage: ZSCORE key member"
         result = store.zscore(parts[1], parts[2])
         return str(result) if result is not None else "(nil)"
+    
+    elif cmd == "RATE_LIMIT":
+        if len(parts) != 4:
+            return "ERR usage: RATE_LIMIT key max_requests window_seconds"
+        return store.rate_limit(parts[1], parts[2], parts[3])
         
     else:
         return f"ERR unknown command '{cmd}'"
+    
