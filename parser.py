@@ -88,5 +88,24 @@ def handle_command(store, message):
     
         return str(store.ttl(parts[1]))
     
+    elif cmd == "HSET":
+        if len(parts) != 4:
+            return "ERR usage: HSET key field value"
+        return store.hset(parts[1], parts[2], parts[3])
+
+    elif cmd == "HGET":
+        if len(parts) != 3:
+            return "ERR usage: HGET key field"
+        result = store.hget(parts[1], parts[2])
+        return result if result is not None else "(nil)"
+
+    elif cmd == "HGETALL":
+        if len(parts) != 2:
+            return "ERR usage: HGETALL key"
+        result = store.hgetall(parts[1])
+        if not isinstance(result, dict):
+            return result
+        return " ".join(f"{k} {v}" for k, v in result.items())
+        
     else:
         return f"ERR unknown command '{cmd}'"

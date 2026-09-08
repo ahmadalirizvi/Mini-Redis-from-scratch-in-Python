@@ -164,6 +164,41 @@ class KeyValueStore:
             return "ERR wrong type for key"
 
         return len(value)
+        # HSET key field value
+    def hset(self, key, field, value):
+        if key not in self.data:
+            self.data[key] = {}
+
+        if not isinstance(self.data[key], dict):
+            return "ERR wrong type for key"
+
+        self.data[key][field] = value
+        self.save()
+        return "OK"
+
+    # HGET key field
+    def hget(self, key, field):
+        value = self.data.get(key)
+
+        if value is None:
+            return None
+
+        if not isinstance(value, dict):
+            return "ERR wrong type for key"
+
+        return value.get(field)
+
+    # HGETALL key
+    def hgetall(self, key):
+        value = self.data.get(key)
+
+        if value is None:
+            return {}
+
+        if not isinstance(value, dict):
+            return "ERR wrong type for key"
+
+        return value
 
 
 # store = KeyValueStore()
