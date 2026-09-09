@@ -3,6 +3,8 @@ from parser import handle_command
 import socket
 import threading
 from config import AUTH_PASSWORD
+import time
+import threading
 
 
 HOST = "127.0.0.1"
@@ -74,10 +76,23 @@ def handle_client(conn, addr, store, lock):
                 response = handle_command(store, message)
 
             conn.sendall((str(response) + "\n").encode())
+    
+def periodic_save(store, interval=1):
+    while True:
+        time.sleep(interval)
+        store.flush()
+
+def periodic_save(store, interval=1):
+    while True:
+        time.sleep(interval)
+        store.flush()
 
 def main():
     store = KeyValueStore()
     lock = threading.Lock()
+
+    save_thread = threading.Thread(target=periodic_save, args=(store,), daemon=True)
+    save_thread.start()
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
         server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -85,12 +100,20 @@ def main():
         server_socket.listen()
         print(f"Mini Redis server listening on {HOST}:{PORT}")
 
-        while True:
-            conn, addr = server_socket.accept()
-            thread = threading.Thread(
-                target=handle_client, args=(conn, addr, store, lock), daemon=True
-            )
-            thread.start()
+        try:
+            while True:
+                conn, addr = server_socket.accept()
+                thread = threading.Thread(
+                    target=handle_client, args=(conn, addr, store, lock), daemon=True
+                )
+                thread.start()
+        except KeyboardInterrupt:
+            print("\nShutting down, flushing pending writes...")
+            store.flush()
+
+
 
 if __name__ == "__main__":
     main()
+    save_thread = threading.Thread(target=periodic_save, args=(store,), daemon=True)
+    save_thread.start()

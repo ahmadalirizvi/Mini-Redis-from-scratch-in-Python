@@ -1,5 +1,4 @@
 # Mini Redis from scratch in Python
-
 import time
 import json
 import os
@@ -11,6 +10,7 @@ class KeyValueStore:
         self.data = {}
         self.expiry = {}
         self.load()
+        self._dirty = False
 
     # SET key value [EX seconds]
     def set(self, key, value, ttl=None):
@@ -29,7 +29,7 @@ class KeyValueStore:
             if time.time() >= self.expiry[key]:
                 del self.data[key]
                 del self.expiry[key]
-                self.save()          # <-- add this
+                self._dirty = True          # <-- add this
                 return None
     
         return self.data.get(key)
@@ -42,7 +42,7 @@ class KeyValueStore:
 
             # Also remove expiry information
             self.expiry.pop(key, None)
-            self.save()
+            self._dirty = True
 
             return "OK"
 
@@ -67,20 +67,36 @@ class KeyValueStore:
         if remaining <= 0:
             del self.data[key]
             del self.expiry[key]
-            self.save()               # <-- add this
+            self._dirty = True               # <-- add this
             return -2
 
         return int(remaining)
     
     # Save method
     def save(self):
-        dir_path = os.path.dirname(self.filepath)
+        start = time.time()
 
-        if dir_path:  # only create a directory if the path actually has one
+        dir_path = os.path.dirname(self.filepath)
+        if dir_path:
             os.makedirs(dir_path, exist_ok=True)
 
-        # ... rest of save() unchanged (the serializable_data conversion + json.dump)
+        serializable_data = {}
+        for key, value in self.data.items():
+            if isinstance(value, set):
+                serializable_data[key] = {"__type__": "set", "values": list(value)}
+            else:
+                serializable_data[key] = value
+
+        with open(self.filepath, "w") as f:
+            json.dump({"data": serializable_data, "expiry": self.expiry}, f)
+
+        elapsed_ms = (time.time() - start) * 1000
+        print(f"[save] {len(self.data)} keys, took {elapsed_ms:.3f} ms")
     
+    def flush(self):
+        if self._dirty:
+            self.save()
+            self._dirty = False
     # Load method   
     def load(self):
         if not os.path.exists(self.filepath):
@@ -107,7 +123,7 @@ class KeyValueStore:
             self.expiry[key] = time.time() + ttl
         else:
             self.expiry.pop(key, None)
-        self.save()
+        self._dirty = True
         return "OK"
         
     # LPUSH key value
@@ -119,7 +135,7 @@ class KeyValueStore:
             return "ERR wrong type for key"
 
         self.data[key].insert(0, value)
-        self.save()
+        self._dirty = True
         return "OK"
 
     # LRANGE key (returns the whole list for now)
@@ -153,7 +169,7 @@ class KeyValueStore:
         if not value:
             del self.data[key]
 
-        self.save()
+        self._dirty = True
         return popped
 
     # LLEN key
@@ -176,7 +192,7 @@ class KeyValueStore:
             return "ERR wrong type for key"
 
         self.data[key][field] = value
-        self.save()
+        self._dirty = True
         return "OK"
 
     # HGET key field
@@ -217,7 +233,7 @@ class KeyValueStore:
             return "ERR score must be a number"
 
         self.data[key][member] = score
-        self.save()
+        self._dirty = True
         return "OK"
 
     # ZRANGE key (returns members sorted by score, ascending)
@@ -257,7 +273,7 @@ class KeyValueStore:
         self.data[key] = current
 
         # Preserve existing TTL if the key already had one — incr shouldn't reset it
-        self.save()
+        self._dirty = True
         return current
     
     # RATE_LIMIT key max_requests window_seconds
@@ -272,19 +288,19 @@ class KeyValueStore:
         if key not in self.data:
             self.data[key] = 1
             self.expiry[key] = time.time() + window_seconds
-            self.save()
+            self._dirty = True
             return "ALLOWED"
 
         # Check if window has expired (reuse existing expiry logic)
         if key in self.expiry and time.time() >= self.expiry[key]:
             self.data[key] = 1
             self.expiry[key] = time.time() + window_seconds
-            self.save()
+            self._dirty = True
             return "ALLOWED"
 
         # Still within window — increment and check
         self.data[key] += 1
-        self.save()
+        self._dirty = True
 
         if self.data[key] > max_requests:
             return "REJECTED"
@@ -300,7 +316,7 @@ class KeyValueStore:
             return "ERR wrong type for key"
 
         self.data[key].append(value)
-        self.save()
+        self._dirty = True
         return "OK"
 
 # store = KeyValueStore()
