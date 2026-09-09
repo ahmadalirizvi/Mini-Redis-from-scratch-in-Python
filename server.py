@@ -1,11 +1,17 @@
 from storage import KeyValueStore
 from parser import handle_command
+from config import AUTH_PASSWORD
 import socket
 import threading
-from config import AUTH_PASSWORD
 import time
-import threading
+import logging
+from config import HOST, PORT, AUTH_PASSWORD
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 HOST = "127.0.0.1"
 PORT = 6380
@@ -13,17 +19,18 @@ PORT = 6380
 subscribers = {}          # channel -> list of conn objects
 subscribers_lock = threading.Lock()
 
+
 def handle_client(conn, addr, store, lock):
-    print(f"Connected by {addr}")
+    logger.info(f"Connected by {addr}")
     subscribed_channels = []
-    authenticated = False   # <-- new: per-connection auth state
+    authenticated = False   # per-connection auth state
 
     with conn:
         while True:
             data = conn.recv(1024)
 
             if not data:
-                print(f"Disconnected: {addr}")
+                logger.info(f"Disconnected: {addr}")
                 with subscribers_lock:
                     for channel in subscribed_channels:
                         if conn in subscribers.get(channel, []):
@@ -31,7 +38,7 @@ def handle_client(conn, addr, store, lock):
                 break
 
             message = data.decode().strip()
-            print(f"Received from {addr}:", message)
+            logger.info(f"Received from {addr}: {message}")
             parts = message.split()
 
             # AUTH is always allowed, even before authentication
@@ -76,16 +83,13 @@ def handle_client(conn, addr, store, lock):
                 response = handle_command(store, message)
 
             conn.sendall((str(response) + "\n").encode())
-    
-def periodic_save(store, interval=1):
-    while True:
-        time.sleep(interval)
-        store.flush()
+
 
 def periodic_save(store, interval=1):
     while True:
         time.sleep(interval)
         store.flush()
+
 
 def main():
     store = KeyValueStore()
@@ -98,7 +102,7 @@ def main():
         server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server_socket.bind((HOST, PORT))
         server_socket.listen()
-        print(f"Mini Redis server listening on {HOST}:{PORT}")
+        logger.info(f"Mini Redis server listening on {HOST}:{PORT}")
 
         try:
             while True:
@@ -108,12 +112,9 @@ def main():
                 )
                 thread.start()
         except KeyboardInterrupt:
-            print("\nShutting down, flushing pending writes...")
+            logger.info("Shutting down, flushing pending writes...")
             store.flush()
-
 
 
 if __name__ == "__main__":
     main()
-    save_thread = threading.Thread(target=periodic_save, args=(store,), daemon=True)
-    save_thread.start()

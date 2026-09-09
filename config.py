@@ -1,1 +1,5 @@
+HOST = "127.0.0.1"
+PORT = 6380
 AUTH_PASSWORD = "changeme123"
+DEFAULT_DB_PATH = "data/database.json"
+SAVE_INTERVAL_SECONDS = 1
