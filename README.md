@@ -227,7 +227,7 @@ Type hints and docstrings added across `storage.py` and `parser.py`. `print()` r
 ### 1. Clone the repository
 
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/ahmadalirizvi/Mini-Redis-from-scratch-in-Python
 cd mini-redis
 ```
 
