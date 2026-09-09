@@ -241,11 +241,7 @@ source .venv/bin/activate      # macOS/Linux
 
 ### 3. Install dependencies
 
-```bash
-pip install -r requirements.txt
-```
-
-(Currently only `pytest` is required, for the test suite — the server itself uses only the standard library.)
+Currently only `pytest` is required, for the test suite — the server itself uses only the standard library.
 
 ## Quick Start
 
