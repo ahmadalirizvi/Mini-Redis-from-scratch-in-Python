@@ -478,6 +478,82 @@ Next Phase
 
 Several real bugs surfaced and were fixed along the way — missing `save()` calls after mutations, import-time side effects in `storage.py`, a file path resolving relative to the wrong working directory, and a stale server process quietly holding a port after a crash. Each one became a small lesson in its own right, which is arguably the actual point of building something like this from scratch rather than just reading about how Redis works.
 
+# Contributing to Mini Redis
+
+Thanks for your interest in this project! It started as a personal learning exercise — understanding how Redis-like systems work by building one from scratch — and contributions that keep that learning spirit alive are very welcome, whether that's a bug fix, a new command, a clearer docstring, or an extra test case.
+
+Please also read the [Code of Conduct](CODE_OF_CONDUCT.md) before participating.
+
+## Ways to Contribute
+
+* **Report bugs** — open an issue with steps to reproduce, what you expected, and what actually happened.
+* **Suggest features** — new commands, data structures, or Redis-like behaviors are welcome, especially ones that teach something new.
+* **Improve documentation** — clearer docstrings, README fixes, or better examples in the Quick Start section.
+* **Add tests** — more coverage in `tests/`, especially for edge cases in expiry, persistence, or the parser.
+* **Fix bugs / implement features** — see open issues, or propose your own.
+
+## Getting Started
+
+1. Fork the repository and clone your fork:
+
+   ```bash
+   git clone https://github.com/<your-username>/Mini-Redis-from-scratch-in-Python
+   cd mini-redis
+   ```
+
+2. Create and activate a virtual environment:
+
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate      # macOS/Linux
+   .venv\Scripts\activate         # Windows
+   ```
+
+3. Install dependencies:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. Create a branch for your change:
+
+   ```bash
+   git checkout -b fix/short-description
+   ```
+
+## Development Guidelines
+
+* **Stick to the standard library** for the core server (`server.py`, `storage.py`, `parser.py`, etc.) — the whole point of this project is understanding the internals without leaning on external packages. `pytest` is the one exception, used only for the test suite.
+* **Match the existing style** — type hints and docstrings on public methods (see `storage.py` / `parser.py`), `logging` instead of `print()` for server/worker output, and configuration values in `config.py` rather than hardcoded in individual files.
+* **Keep commands consistent** with the existing command reference — validate arguments with `require_args()` where applicable, and return clear `ERR` messages for malformed input.
+* **Thread safety matters** — any new mutation of the shared `KeyValueStore` must go through the existing locking pattern.
+* **Write or update tests** for any behavior change, in the matching file under `tests/` (`test_storage.py`, `test_expiry.py`, `test_persistence.py`, `test_commands.py`).
+
+## Testing Your Changes
+
+Run the full test suite before opening a pull request:
+
+```bash
+pytest -v
+```
+
+If you're changing anything performance-sensitive (e.g. the save/flush logic from Phase 12), consider running the benchmark before and after:
+
+```bash
+python benchmark.py
+```
+
+## Submitting a Pull Request
+
+1. Make sure `pytest -v` passes with no failures.
+2. Update the README's command reference or phase summary if your change adds or alters user-facing behavior.
+3. Write a clear PR description: what changed, why, and how you tested it.
+4. Open the PR against `main` and link any related issue.
+
+## Questions
+
+If anything is unclear, feel free to open an issue with a `question` label, or reach out at **ahmadrizvi438@gmail.com**.
+
 ## Disclaimer
 
 This is an educational implementation inspired by the concepts found in Redis. It is **not** intended to be a production replacement for Redis, and the authentication system in particular (Phase 11) is for learning purposes only — not production-grade security.
