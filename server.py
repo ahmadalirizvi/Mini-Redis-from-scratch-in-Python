@@ -1,20 +1,17 @@
-from storage import KeyValueStore
-from parser import handle_command
-from config import AUTH_PASSWORD
 import socket
 import threading
 import time
 import logging
+
 from config import HOST, PORT, AUTH_PASSWORD
+from parser import handle_command
+from storage import KeyValueStore
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s"
 )
 logger = logging.getLogger(__name__)
-
-HOST = "127.0.0.1"
-PORT = 6380
 
 subscribers = {}          # channel -> list of conn objects
 subscribers_lock = threading.Lock()
